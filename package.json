@@ -19,6 +19,7 @@
   "homepage": "https://github.com/Thanit1/iotwebtest#readme",
   "dependencies": {
     "bcryptjs": "^2.4.3",
+    "bootstrap": "^5.3.3",
     "cookie-session": "^2.1.0",
     "ejs": "^3.1.9",
     "express": "^4.19.1",

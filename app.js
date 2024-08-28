@@ -3,9 +3,11 @@ const path = require('path');
 const cookieSession = require('cookie-session');
 const bcrypt = require('bcryptjs');
 const { body, validationResult } = require('express-validator');
-const dbConnection = require('./database');
+const dbConnection = require('./Config/database');
 const app = express();
+
 const port = 3000;
+
 app.use(express.urlencoded({ extended: false }));
 
 // SET OUR VIEWS AND VIEW ENGINE
@@ -18,6 +20,9 @@ app.use(cookieSession({
     keys: ['key1', 'key2'],
     maxAge: 3600 * 1000 // 1hr
 }));
+app.use('/bootstrap', express.static(__dirname + '/node_modules/bootstrap/dist'));
+app.use(express.static('public'));
+
 
 const ifNotLoggedin = (req, res, next) => {
     if (!req.session.isLoggedIn) {
@@ -69,8 +74,6 @@ app.get('/login', ifLoggedin, (req, res) => {
 
         });
     }
-
-
 });
 
 app.post('/login', ifLoggedin, [
