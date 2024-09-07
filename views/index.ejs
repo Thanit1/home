@@ -191,19 +191,6 @@
                         <div
                             class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                             <h1 class="h2">Dashboard</h1>
-                            <div class="btn-toolbar mb-2 mb-md-0">
-                                <div class="btn-group me-2">
-                                    <button type="button" class="btn btn-sm btn-outline-secondary">Share</button>
-                                    <button type="button" class="btn btn-sm btn-outline-secondary">Export</button>
-                                </div>
-                                <button type="button"
-                                    class="btn btn-sm btn-outline-secondary dropdown-toggle d-flex align-items-center gap-1">
-                                    <svg class="bi">
-                                        <use xlink:href="#calendar3" />
-                                    </svg>
-                                    This week
-                                </button>
-                            </div>
                         </div>
 
                         <div class="container">
@@ -647,8 +634,8 @@
                                         <tr>
                                             <th scope="col">nameSwitch</th>
                                             <th scope="col">Status</th>
-                                            <th scope="col">Power Using</th>
                                             <th scope="col">Time ON / OFF</th>
+                                            <th scope="col">Power Using</th>
                                             <th></th>
                                         </tr>
                                     </thead>
@@ -697,9 +684,11 @@
                                             </form>
                                         </div>
                                         </td>
-                                        <td>78.55 </td>
-                                        <td>ON :${switchItem[day]}<br>OFF :${switchItem[dayoff]}
+                                        <td>
+                                            <span style="color: green;">${switchItem[day]}</span><br>
+                                            <span style="color: red;">${switchItem[dayoff]}</span>
                                         </td>
+                                        <td>78.55 </td>
                                         <td>
                                         <!-- delete sw btn -->
                                         <div class="dropdown">
