@@ -699,6 +699,9 @@ app.get('/logout', (req, res) => {
     req.session = null;
     res.redirect('/login');
 });
+app.get('/report', (req, res) => {
+    res.render('report');
+});
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
 });

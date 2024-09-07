@@ -530,11 +530,8 @@
                         <div class="container">
                             <div class="container my-3">
                                 
-                                    <div class="d-flex justify-content-between">
+                                    <div class="d-flex justify-content-between mt-5">
                                         <h3 >${board.name}</h3>
-
-                                        
-
                                         <div class="dropdown">
                                         <button class="btn btn-info dropdown-toggle" type="button" data-bs-toggle="dropdown"
                                             aria-expanded="false">
@@ -551,7 +548,6 @@
                                         </ul>
                                         </div>
                                     </div>
-
                                     <div class="modal fade" id="tokenModal${board.id_board}" tabindex="-1" aria-labelledby="tokenModalLabel" aria-hidden="true">
                                         <div class="modal-dialog">
                                             <div class="modal-content">
@@ -682,92 +678,92 @@
                                     switches.forEach(switchItem => {
                                         const switchHTML = `
                            
-                                <!-- เพิ่มสวิตช์แล้วจะเพิ่มส่วนนี้ -->
-            <tbody>
-              <tr>
-                <th scope="row">${switchItem.name}</th>
-                <td>
-                  <div>
-                    <form action="/controller1" method="POST">
-                      <input type="hidden" name="token" value="${switchItem.token}">
-                      <div class="checkbox-wrapper-8">
-                        <input class="tgl tgl-skewed" id="cb4-9-${switchItem.pin}${switchItem.token}" type="checkbox"
-                          name="status" value="1" ${switchItem.status == 1 ? 'checked' : ''}
-                          onchange="this.form.submit()" />
-                        <label class="tgl-btn" data-tg-off="OFF" data-tg-on="ON"
-                          for="cb4-9-${switchItem.pin}${switchItem.token}"></label>
-                      </div>
-                      <input type="hidden" name="pinname" value="${switchItem.pin}">
-                    </form>
-                  </div>
-                </td>
-                <td>78.55 </td>
-                <td>ON :${switchItem[day]}<br>OFF :${switchItem[dayoff]}
-                </td>
-                <td>
-                  <!-- delete sw btn -->
-                  <div class="dropdown">
-                    <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown"
-                      aria-expanded="false">
-                      <i class="bi bi-list"></i>
-                    </button>
-                    <ul class="dropdown-menu">
-                      <li><button class="dropdown-item" type="button" data-bs-toggle="modal"
-                          data-bs-target="#editSwitchModal${switchItem.pin}">แก้ไขสวิตช์</button></li>
-                      <div class="modal fade" id="editSwitchModal${switchItem.pin}" tabindex="-1" aria-labelledby="editSwitchModalLabel" aria-hidden="true">
-                        <div class="modal-dialog">
-                          <div class="modal-content">
-                            <div class="modal-header">
-                              <h5 class="modal-title" id="editSwitchModalLabel">แก้ไขสวิตช์ ${switchItem.name}</h5>
-                              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                              <!-- เพิ่มฟอร์มสำหรับแก้ไขสวิตช์ที่นี่ -->
-                              <form action="/editSwitch" method="POST">
-                                <input type="hidden" name="token" value="${switchItem.token}">
-                                <input type="hidden" name="pin" value="${switchItem.pin}">
-                                <div class="mb-3">
-                                  <label for="switchName" class="form-label">ชื่อสวิตช์</label>
-                                  <input type="text" class="form-control" id="switchName" name="name" value="${switchItem.name}">
-                                </div>
-                                <!-- เพิ่มฟิลด์อื่นๆ ตามต้องการ -->
-                                <button type="submit" class="btn btn-primary">บันทึกการแก้ไข</button>
-                              </form>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <li><button class="dropdown-item" type="button" data-bs-toggle="modal"
-                          data-bs-target="#addSw2${switchItem.pin}">ลบสวิตช์</button></li>
-                    </ul>
-                    <div class="modal fade" id="addSw2${switchItem.pin}" tabindex="-1" aria-labelledby="exampleModalLabel"
-                                    aria-hidden="true">
-                                    <div class="modal-dialog">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h1 class="modal-title fs-5" id="addSw">ลบสวิตช์ ${switchItem.pin}</h1>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                    aria-label="Close"></button>
+                                                        <!-- เพิ่มสวิตช์แล้วจะเพิ่มส่วนนี้ -->
+                                    <tbody>
+                                    <tr>
+                                        <th scope="row">${switchItem.name}</th>
+                                        <td>
+                                        <div>
+                                            <form action="/controller1" method="POST">
+                                            <input type="hidden" name="token" value="${switchItem.token}">
+                                            <div class="checkbox-wrapper-8">
+                                                <input class="tgl tgl-skewed" id="cb4-9-${switchItem.pin}${switchItem.token}" type="checkbox"
+                                                name="status" value="1" ${switchItem.status == 1 ? 'checked' : ''}
+                                                onchange="this.form.submit()" />
+                                                <label class="tgl-btn" data-tg-off="OFF" data-tg-on="ON"
+                                                for="cb4-9-${switchItem.pin}${switchItem.token}"></label>
                                             </div>
-                                            <form action="/DELETE_Sw" method="POST">
-                                                <div class="modal-body">
-                                                    <input type="hidden" name="token" value="${board.token}">
-                                                    <input type="hidden" name="pin" value="${switchItem.pin}">
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary"
-                                                        data-bs-dismiss="modal">ยกเลิก</button>
-                                                    <button type="submit" class="btn btn-primary">ลบสวิตช์</button>
-                                                </div>
+                                            <input type="hidden" name="pinname" value="${switchItem.pin}">
                                             </form>
                                         </div>
-                                    </div>
-                                </div>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+                                        </td>
+                                        <td>78.55 </td>
+                                        <td>ON :${switchItem[day]}<br>OFF :${switchItem[dayoff]}
+                                        </td>
+                                        <td>
+                                        <!-- delete sw btn -->
+                                        <div class="dropdown">
+                                            <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                                            aria-expanded="false">
+                                            <i class="bi bi-list"></i>
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                            <li><button class="dropdown-item" type="button" data-bs-toggle="modal"
+                                                data-bs-target="#editSwitchModal${switchItem.pin}">แก้ไขสวิตช์</button></li>
+                                            <div class="modal fade" id="editSwitchModal${switchItem.pin}" tabindex="-1" aria-labelledby="editSwitchModalLabel" aria-hidden="true">
+                                                <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                    <h5 class="modal-title" id="editSwitchModalLabel">แก้ไขสวิตช์ ${switchItem.name}</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                    <!-- เพิ่มฟอร์มสำหรับแก้ไขสวิตช์ที่นี่ -->
+                                                    <form action="/editSwitch" method="POST">
+                                                        <input type="hidden" name="token" value="${switchItem.token}">
+                                                        <input type="hidden" name="pin" value="${switchItem.pin}">
+                                                        <div class="mb-3">
+                                                        <label for="switchName" class="form-label">ชื่อสวิตช์</label>
+                                                        <input type="text" class="form-control" id="switchName" name="name" value="${switchItem.name}">
+                                                        </div>
+                                                        <!-- เพิ่มฟิลด์อื่นๆ ตามต้องการ -->
+                                                        <button type="submit" class="btn btn-primary">บันทึกการแก้ไข</button>
+                                                    </form>
+                                                    </div>
+                                                </div>
+                                                </div>
+                                            </div>
+                                            <li><button class="dropdown-item" type="button" data-bs-toggle="modal"
+                                                data-bs-target="#addSw2${switchItem.pin}">ลบสวิตช์</button></li>
+                                            </ul>
+                                            <div class="modal fade" id="addSw2${switchItem.pin}" tabindex="-1" aria-labelledby="exampleModalLabel"
+                                                            aria-hidden="true">
+                                                            <div class="modal-dialog">
+                                                                <div class="modal-content">
+                                                                    <div class="modal-header">
+                                                                        <h1 class="modal-title fs-5" id="addSw">ลบสวิตช์ ${switchItem.pin}</h1>
+                                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                                            aria-label="Close"></button>
+                                                                    </div>
+                                                                    <form action="/DELETE_Sw" method="POST">
+                                                                        <div class="modal-body">
+                                                                            <input type="hidden" name="token" value="${board.token}">
+                                                                            <input type="hidden" name="pin" value="${switchItem.pin}">
+                                                                        </div>
+                                                                        <div class="modal-footer">
+                                                                            <button type="button" class="btn btn-secondary"
+                                                                                data-bs-dismiss="modal">ยกเลิก</button>
+                                                                            <button type="submit" class="btn btn-primary">ลบสวิตช์</button>
+                                                                        </div>
+                                                                    </form>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                        </div>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
                                 
                             
                             `;
