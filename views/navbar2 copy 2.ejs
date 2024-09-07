@@ -5,21 +5,11 @@
                 <img src="/lcm-logo.png" width="150" height="50" class="d-none d-sm-block" alt="Responsive Image">
             </a>
             <% if (typeof username !=='undefined' && username) { %>
-                <div class="d-flex justify-content-center flex-grow-1">
-                    <a href="/" class="nav-item me-3 text-decoration-none fw-bold text-primary hover-effect">
-                        <i class="bi bi-speedometer2 me-1"></i>แดชบอร์ด
-                    </a>
-                    <a href="/" class="nav-item text-decoration-none fw-bold text-success hover-effect">
-                        <i class="bi bi-file-earmark-text me-1"></i>รายงาน
-                    </a>
-                </div>
-                <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas"
-                    data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
+                <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar"
+                    aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-
-                <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar"
-                    aria-labelledby="offcanvasNavbarLabel">
+                <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
                     <div class="offcanvas-header">
                         <h5 class="offcanvas-title" id="offcanvasNavbarLabel">Options</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
@@ -36,21 +26,18 @@
                                 <a class="nav-link btn btn-outline-secondary" href="/farm">บอร์ดห้องของคุณ</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link btn btn-outline-secondary" href="/report">Report</a>
-                            </li>
-                            <li class="nav-item">
                                 <a class="nav-link btn btn-outline-danger" href="/logout">ออกจากระบบ</a>
                             </li>
                         </ul>
                     </div>
                 </div>
                 <% } %>
-                    <% if (typeof username==='undefined' || !username) { %>
-                        <div>
-                            <a href="/login" type="button" class="btn btn-outline-primary me-2">Login</a>
-                            <a href="/register" type="button" class="btn btn-outline-primary">Sign-up</a>
-                        </div>
-                        <% } %>
+            <% if (typeof username === 'undefined' || !username) { %>
+                <div>
+                    <a href="/login" type="button" class="btn btn-outline-primary me-2">Login</a>
+                    <a href="/register" type="button" class="btn btn-outline-primary">Sign-up</a>
+                </div>
+            <% } %>
         </div>
     </nav>
 </header>
