@@ -4,6 +4,7 @@ const cookieSession = require('cookie-session');
 const bcrypt = require('bcryptjs');
 const { body, validationResult } = require('express-validator');
 const dbConnection = require('./db/citus');
+const 
 const app = express();
 const port = 8080;
 const moment = require('moment');
@@ -32,18 +33,12 @@ app.use(cookieSession({
     maxAge: 3600 * 1000 // 1hr
 }));
 
-const ifNotLoggedin = (req, res, next) => {
-    if (!req.session.isLoggedIn) {
-        return res.render('login');
-    }
-    next();
-};
-const ifLoggedin = (req, res, next) => {
-    if (req.session.isLoggedIn) {
-        return res.redirect('/index');
-    }
-    next();
-};
+const { ifNotLoggedin, ifLoggedin } = require('./auth');
+
+// ใช้งานฟังก์ชันตามปกติ
+app.get('/index', ifNotLoggedin, (req, res) => {
+    // ...
+});
 app.get('/', (req, res) => {
     if (!req.session.userID) {
         res.render('login', { username: null });
@@ -65,6 +60,7 @@ app.get('/register', ifLoggedin, (req, res) => {
         old_data: {},
     });
 });
+
 app.get('/login', ifLoggedin, (req, res) => {
 
     if (req.query.register === 'success') {
@@ -129,6 +125,7 @@ app.post('/login', ifLoggedin, [
         });
     }
 });
+
 app.post('/register', ifLoggedin, [
     body('user_email', 'Invalid email address!').isEmail().custom((value) => {
         return dbConnection.query('SELECT email FROM users WHERE email=$1', [value])
@@ -406,12 +403,6 @@ app.post('/addtime', ifNotLoggedin, (req, res, next) => {
         });
 });
 
-
-
-
-
-
-
 app.get('/addtime/:username', (req, res) => {
     const username = req.params.username;
     console.log(username);
@@ -615,9 +606,6 @@ function updated_TimeoN() {
 }
 
 // ทดสอบฟังก์ชัน
-
-
-
 function updated_oNTime() {
 
     const currentTime = moment().format('HH:mm');
