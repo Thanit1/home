@@ -4,10 +4,10 @@ const cookieSession = require('cookie-session');
 const bcrypt = require('bcryptjs');
 const { body, validationResult } = require('express-validator');
 const dbConnection = require('./db/citus');
-const 
 const app = express();
 const port = 8080;
 const moment = require('moment');
+const { ifNotLoggedin, ifLoggedin } = require('./auth');
 
 setInterval(updated_oNTime, 6000); 
 setInterval(updated_oFFTime, 6000); 
@@ -33,12 +33,7 @@ app.use(cookieSession({
     maxAge: 3600 * 1000 // 1hr
 }));
 
-const { ifNotLoggedin, ifLoggedin } = require('./auth');
 
-// ใช้งานฟังก์ชันตามปกติ
-app.get('/index', ifNotLoggedin, (req, res) => {
-    // ...
-});
 app.get('/', (req, res) => {
     if (!req.session.userID) {
         res.render('login', { username: null });
@@ -54,6 +49,7 @@ app.get('/', (req, res) => {
     }
 
 });
+
 app.get('/register', ifLoggedin, (req, res) => {
     res.render('register', {
         register_error: [],
@@ -79,6 +75,7 @@ app.get('/login', ifLoggedin, (req, res) => {
 
 
 });
+
 app.post('/login', ifLoggedin, [
     body('user_email').custom((value) => {
         return dbConnection.query('SELECT email FROM users WHERE email=$1', [value])
