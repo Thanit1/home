@@ -7,7 +7,7 @@ const dbConnection = require('./db/citus');
 const app = express();
 const port = 8080;
 const moment = require('moment');
-const { ifNotLoggedin, ifLoggedin } = require('./auth');
+
 
 setInterval(updated_oNTime, 6000); 
 setInterval(updated_oFFTime, 6000); 
@@ -32,6 +32,20 @@ app.use(cookieSession({
     keys: ['key1', 'key2'],
     maxAge: 3600 * 1000 // 1hr
 }));
+
+const ifNotLoggedin = (req, res, next) => {
+    if (!req.session.isLoggedIn) {
+        return res.render('login');
+    }
+    next();
+};
+
+const ifLoggedin = (req, res, next) => {
+    if (req.session.isLoggedIn) {
+        return res.redirect('/index');
+    }
+    next();
+};
 
 
 app.get('/', (req, res) => {
