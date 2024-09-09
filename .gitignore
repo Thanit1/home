@@ -1,4 +1,4 @@
-node_modules/
-package-lock.json
-db/
-app.js
+node_modules
+navbar2 copy.ejs
+app copy.js
+db
