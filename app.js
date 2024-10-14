@@ -24,14 +24,12 @@ app.use(express.static('public'));
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 app.use(express.json());
-
 // APPLY COOKIE SESSION MIDDLEWARE
 app.use(cookieSession({
     name: 'session',
     keys: ['key1', 'key2'],
     maxAge: 3600 * 1000 // 1hr
 }));
-
 const ifNotLoggedin = (req, res, next) => {
     if (!req.session.isLoggedIn) {
         return res.render('login');
@@ -63,8 +61,6 @@ app.get('/', (req, res, next) => {
         });
     }
 });
-
-
 app.get('/register', ifLoggedin, (req, res) => {
     res.render('register', {
         register_error: [],
@@ -226,8 +222,6 @@ app.post('/addSwitch', ifNotLoggedin, (req, res, next) => {
         }
     );
 });
-
-
 app.post('/DELETE_Sw', ifNotLoggedin, (req, res,) => {
     const { token, pin } = req.body;
     if (!token || !pin) {
@@ -340,14 +334,12 @@ app.get('/getSwitch1/:token', ifNotLoggedin, async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
-
 app.get('/dayonoff', (req, res) => {
     const currentDay = moment().tz('Asia/Bangkok').format('dddd').toLowerCase(); // ดึงชื่อวันปัจจุบันตามเวลาไทย
     const currentDayoff = currentDay + "off"; // ดึงชื่อวันปัจจุบันสำหรับ off
 
     res.json({ currentDay: currentDay, currentDayoff: currentDayoff });
 });
-
 app.post('/controller1', ifNotLoggedin, (req, res, next) => {
     const { token, pinname } = req.body;
     let status = 0;
@@ -406,7 +398,6 @@ app.post('/offcontroller', ifNotLoggedin, (req, res, next) => {
     });
 
 });
-
 app.post('/controller', ifNotLoggedin, (req, res, next) => {
     const { token } = req.body;
     let status = 0;
@@ -429,7 +420,6 @@ app.post('/controller', ifNotLoggedin, (req, res, next) => {
         });
     });
 });
-
 app.post('/addtime', ifNotLoggedin, (req, res, next) => {
     const { minutes, time, switchStatus } = req.body;
     let selectedDays = req.body['days[]'];
@@ -493,9 +483,6 @@ app.post('/addtime', ifNotLoggedin, (req, res, next) => {
             res.status(500).send('Database error');
         });
 });
-
-
-
 app.get('/addtime/:username', (req, res) => {
     const username = req.params.username;
     console.log(username);
@@ -526,7 +513,6 @@ app.get('/addtime/:username', (req, res) => {
         });
     });
 });
-
 app.post('/cancelTime', ifNotLoggedin, (req, res, next) => {
     const { switchStatus } = req.body;
     let selectedDays = req.body['days[]'];
@@ -586,7 +572,6 @@ app.post('/cancelTime', ifNotLoggedin, (req, res, next) => {
             res.status(500).send('Database error');
         });
 });
-
 app.get('/cancelTime/:username', (req, res) => {
     const username = req.params.username;
     console.log(username);
@@ -617,7 +602,6 @@ app.get('/cancelTime/:username', (req, res) => {
         });
     });
 });
-
 app.post('/editSwitch', async (req, res, next) => {
     try {
         const { token, pin, watt, name } = req.body;
@@ -666,7 +650,6 @@ app.post('/editBoard', async (req, res, next) => {
         res.status(500).json({ success: false, message: 'เกิดข้อผิดพลาดในการแก้ไขสวิตช์' });
     }
 });
-
 app.get('/report', ifNotLoggedin, (req, res) => {
     dbConnection.query("SELECT * FROM users WHERE id=$1", [req.session.userID], (err, userResult) => {
         if (err) {
@@ -688,8 +671,6 @@ app.get('/report', ifNotLoggedin, (req, res) => {
         });
     });
 });
-// ... existing code ...
-
 app.get('/fetch-total-hours', (req, res) => {
     const userID = req.session.userID;
 
@@ -729,8 +710,6 @@ app.get('/fetch-total-hours', (req, res) => {
         });
     });
 });
-
-// ... existing code ...
 app.get('/token-data', async (req, res) => {
     try {
         const userEmail = req.session.username; // Assuming email is stored in session
@@ -748,7 +727,6 @@ app.get('/token-data', async (req, res) => {
         res.status(500).send('Server Error');
     }
 });
-
 app.get('/fetch-data', async (req, res) => {
     const tokens = req.query.tokens ? req.query.tokens.split(',') : [];
     const startDate = req.query.startDate;
@@ -815,7 +793,6 @@ app.get('/fetch-data', async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
-
 app.post('/export-data', async (req, res) => {
     try {
         let { tokens, startDate, endDate, fileType } = req.body;
@@ -864,7 +841,6 @@ app.post('/export-data', async (req, res) => {
         res.status(500).json({ error: 'เกิดข้อผิดพลาดในการส่งออกข้อมูล: ' + error.message });
     }
 });
-
 app.post('/export-chart-data', (req, res) => {
     const { chartData, fileType } = req.body;
 
@@ -897,6 +873,246 @@ app.post('/export-chart-data', (req, res) => {
         });
     });
 });
+app.get('/title', (req, res) => {
+    if (!req.session.userID) {
+        res.render('title', { username: null });
+    } else {
+        dbConnection.query("SELECT * FROM users WHERE id=$1", [req.session.userID], (err, result) => {
+            if (err) {
+                return next(err);
+            }
+            const successMessage = req.session.successMessage || null; // Get success message from session
+            req.session.successMessage = null; // Clear the success message from the session
+
+            res.render('title', {
+                username: result.rows[0].email,
+                name: result.rows[0].username,
+                successMessage: successMessage // Pass the success message to the template
+            });
+        });
+    }
+});
+app.post('/swcontrol', (req, res) => {
+    const { token, pin, status } = req.body;
+
+
+    // ค้นหาโทเคนที่ตรงกับข้อมูลที่รับเข้ามา
+    dbConnection.query("SELECT * FROM boardcontroller WHERE token = $1 AND pin = $2", [token, pin], (err, result) => {
+        if (err) {
+            return next(err);  // ส่งข้อผิดพลาดไปยัง middleware ถัดไป
+        }
+
+        if (result.rows.length > 0) {
+            // อัพเดตสถานะของพินที่ตรงกัน
+            dbConnection.query("UPDATE boardcontroller SET status = $1 WHERE token = $2 AND pin = $3", [status, token, pin], (err, result) => {
+                if (err) {
+                    return next(err);
+                }
+                res.status(200).json(result.rows);
+            });
+        } else {
+            return res.status(403).send('Incorrect token or pin'); // ส่งข้อความผิดพลาดถ้าไม่พบโทเคนหรือพินที่ตรงกัน
+        }
+    });
+});
+app.post('/lambController', (req, res) => {
+    const { token } = req.body;
+    console.log(token)
+    if (!token) {
+        return res.status(400).send('Missing token.');
+    }
+
+    // อัพเดทเวลาล่าสุดที่บอร์ดส่งข้อมูลมา
+    boardLastSeen.set(token, Date.now());
+
+    // ดึงข้อมูลจาก boardcontroller
+    dbConnection.query('SELECT id, token, name, pin, status, watt, upgdatetime FROM boardcontroller WHERE token = $1', [token])
+        .then(result => {
+            if (result.rows.length > 0) {
+                res.status(200).json(result.rows);
+            } else {
+                res.status(404).send('Data not found.');
+            }
+        })
+        .catch(error => {
+            console.error('Error querying database:', error);
+            res.status(500).send('Internal server error.');
+        });
+});
+app.get('/boardStatus/:token', (req, res) => {
+    const { token } = req.params;
+    const lastSeen = boardLastSeen.get(token);
+    const now = Date.now();
+    const isOnline = lastSeen && (now - lastSeen) < OFFLINE_THRESHOLD;
+
+    res.json({ isOnline, lastSeen: lastSeen || null });
+});
+app.get('/api/boards', (req, res) => {
+    dbConnection.query('SELECT token FROM boardcontroller')
+        .then(result => {
+            res.json(result.rows);
+        })
+        .catch(error => {
+            console.error('Error querying database:', error);
+            res.status(500).json({ error: 'Internal server error' });
+        });
+});
+app.post('/swcontrol1', (req, res, next) => {
+    const { token, pin1, pin2, pin3 } = req.body;
+    const pins = [1, 2, 3];
+    const statuses = [pin1, pin2, pin3];
+    console.log(req.body)
+    dbConnection.query("SELECT * FROM boardcontroller WHERE token = $1", [token], (err, result) => {
+        if (err) {
+            return next(err);
+        }
+
+        if (result.rows.length > 0) {
+            // วนลูปเพื่ออัพเดตสถานะของแต่ละพิน
+            const updatePromises = pins.map((pin, index) => {
+                return dbConnection.query("UPDATE boardcontroller SET status = $1 WHERE token = $2 AND pin = $3",
+                    [statuses[index], token, pin]);
+            });
+
+            // รอให้ทุกคำสั่งอัพเดตเสร็จสิ้น
+            Promise.all(updatePromises)
+                .then(() => {
+                    res.status(200).json({ message: 'Status updated successfully' });
+                })
+                .catch(err => {
+                    next(err);
+                });
+        } else {
+            return res.status(403).send('Incorrect token....');
+        }
+    });
+});
+app.post('/addTimeONled', (req, res, next) => {
+    const { token, pin1, pin2, pin3 } = req.body;
+    const pins = [1, 2, 3];
+    const usage = [pin1, pin2, pin3];
+    const currentTime = moment().tz('Asia/Bangkok').format('DD-MM-YYYY HH:mm');  // Set to Thailand time
+    console.log(usage)
+
+    console.log(req.body)
+    // วนลูปเพื่ออัพเดตสถานะของแต่ละพิน
+    const updatePromises = pins.map((pin, index) => {
+        return dbConnection.query("INSERT INTO electricity_usage (token, pin, timestamp, usage_minutes )VALUES($1, $2, $3,$4)",
+            [token, pin, currentTime, usage[index]]);
+    });
+
+    dbConnection.query("UPDATE boardcontroller SET upgdatetime = 0  WHERE token = $1", [token], (updateErr) => {
+        if (updateErr) {
+            console.error('Error updating status:', updateErr);
+        } else {
+
+        }
+    });
+    Promise.all(updatePromises)
+        .then(() => {
+            res.status(200).json({ message: 'Status updated successfully' });
+        })
+        .catch(err => {
+            next(err);
+        });
+
+});
+function updated_TimeoN() {
+    const now = new Date(); // ดึงเวลาปัจจุบัน
+    const options = { timeZone: 'Asia/Bangkok' };
+    const bangkokTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Bangkok' })); // แปลงเวลาตาม timezone Bangkok
+    const minutes = bangkokTime.getMinutes(); // ดึงเลขนาที
+    console.log(minutes); // จะแสดงเฉพาะเลขนาที
+    // เช็คว่าเวลาตรงกับชั่วโมงเต็มหรือไม่
+    if (minutes === 0) {
+        dbConnection.query("UPDATE boardcontroller SET upgdatetime = 1", (updateErr) => {
+            if (updateErr) {
+                console.error('Error updating status:', updateErr);
+            } else {
+
+            }
+        });
+    }
+}
+
+function updated_oNTime() {
+
+    const currentTime = moment().tz('Asia/Bangkok').format('HH:mm'); // Set to Thailand time
+    const currentDay = moment().tz('Asia/Bangkok').format('dddd').toLowerCase(); // Set to Thailand time
+
+
+    // Remove double quotes from around the query string
+    dbConnection.query(`SELECT id, token, pin, ${currentDay} FROM boardcontroller`, (err, result) => {
+        if (err) {
+            console.error('Error querying the database:', err);
+            return;
+        }
+
+        result.rows.forEach(row => {
+
+            const dayTime = row[currentDay];
+            const isDaySelected = dayTime !== null && dayTime !== undefined; // Check if there is a time set for the current day
+            const isTimeMatch = dayTime === currentTime;
+
+            /* console.log(`Checking row ${row.id}:`);
+            console.log(`Current Time: ${currentTime}`);
+            console.log(`Day Time (${currentDay}): ${dayTime}`);
+            console.log(`Day Selected: ${isDaySelected}`);
+            console.log(`Time Match: ${isTimeMatch}`); */
+
+            // Update status only if the time matches and status is not already 1
+            if (isDaySelected && isTimeMatch && row.status !== 1) {
+                dbConnection.query("UPDATE boardcontroller SET status = 1 WHERE id = $1", [row.id], (updateErr) => {
+                    if (updateErr) {
+                        console.error('Error updating status:', updateErr);
+                    } else {
+                        console.log(`Status updated to 1 for token: ${row.token} and pin: ${row.pin}`);
+                    }
+                });
+            }
+        });
+    });
+}
+
+
+function updated_oFFTime() {
+
+    const currentTime = moment().tz('Asia/Bangkok').format('HH:mm'); // Set to Thailand time
+    const currentDay = moment().tz('Asia/Bangkok').format('dddd').toLowerCase() + "off"; // Set to Thailand time
+
+    //console.log(currentDay)
+    // Remove double quotes from around the query string
+    dbConnection.query(`SELECT id, token, pin, ${currentDay} FROM boardcontroller`, (err, result) => {
+        if (err) {
+            console.error('Error querying the database:', err);
+            return;
+        }
+
+        result.rows.forEach(row => {
+
+            const dayTime = row[currentDay];
+            const isDaySelected = dayTime !== null && dayTime !== undefined; // Check if there is a time set for the current day
+            const isTimeMatch = dayTime === currentTime;
+
+            /* console.log(`Checking row ${row.id}:`);
+            console.log(`Current Time: ${currentTime}`);
+            console.log(`Day Time (${currentDay}): ${dayTime}`);
+            console.log(`Day Selected: ${isDaySelected}`);
+            console.log(`Time Match: ${isTimeMatch}`); */
+
+            // Update status only if the time matches and status is not already 1
+            if (isDaySelected && isTimeMatch && row.status !== 0) {
+                dbConnection.query("UPDATE boardcontroller SET status = 0 WHERE id = $1", [row.id], (updateErr) => {
+                    if (updateErr) {
+                        console.error('Error updating status:', updateErr);
+                    } else {
+                        console.log(`Status updated to 1 for token: ${row.token} and pin: ${row.pin}`);
+                    }
+                });
+            }
+        });
+    });
+}
 
 async function createExcelFile(data) {
     const workbook = new ExcelJS.Workbook();
@@ -1096,260 +1312,12 @@ async function createPDFFile(data) {
     });
 }
 
-
-app.get('/title', (req, res) => {
-    if (!req.session.userID) {
-        res.render('title', { username: null });
-    } else {
-        dbConnection.query("SELECT * FROM users WHERE id=$1", [req.session.userID], (err, result) => {
-            if (err) {
-                return next(err);
-            }
-            const successMessage = req.session.successMessage || null; // Get success message from session
-            req.session.successMessage = null; // Clear the success message from the session
-
-            res.render('title', {
-                username: result.rows[0].email,
-                name: result.rows[0].username,
-                successMessage: successMessage // Pass the success message to the template
-            });
-        });
-    }
-});
-app.post('/swcontrol', (req, res) => {
-    const { token, pin, status } = req.body;
-
-
-    // ค้นหาโทเคนที่ตรงกับข้อมูลที่รับเข้ามา
-    dbConnection.query("SELECT * FROM boardcontroller WHERE token = $1 AND pin = $2", [token, pin], (err, result) => {
-        if (err) {
-            return next(err);  // ส่งข้อผิดพลาดไปยัง middleware ถัดไป
-        }
-
-        if (result.rows.length > 0) {
-            // อัพเดตสถานะของพินที่ตรงกัน
-            dbConnection.query("UPDATE boardcontroller SET status = $1 WHERE token = $2 AND pin = $3", [status, token, pin], (err, result) => {
-                if (err) {
-                    return next(err);
-                }
-                res.status(200).json(result.rows);
-            });
-        } else {
-            return res.status(403).send('Incorrect token or pin'); // ส่งข้อความผิดพลาดถ้าไม่พบโทเคนหรือพินที่ตรงกัน
-        }
-    });
-});
-
 // เพิ่มตัวแปรนี้ที่ด้านบนของไฟล์
 const boardLastSeen = new Map();
 const OFFLINE_THRESHOLD = 60 * 1000; // 1 นาทีในหน่วยมิลลิวินาที
 
 
 
-app.post('/lambController', (req, res) => {
-    const { token } = req.body;
-    console.log(token)
-    if (!token) {
-        return res.status(400).send('Missing token.');
-    }
-
-    // อัพเดทเวลาล่าสุดที่บอร์ดส่งข้อมูลมา
-    boardLastSeen.set(token, Date.now());
-
-    // ดึงข้อมูลจาก boardcontroller
-    dbConnection.query('SELECT id, token, name, pin, status, watt, upgdatetime FROM boardcontroller WHERE token = $1', [token])
-        .then(result => {
-            if (result.rows.length > 0) {
-                res.status(200).json(result.rows);
-            } else {
-                res.status(404).send('Data not found.');
-            }
-        })
-        .catch(error => {
-            console.error('Error querying database:', error);
-            res.status(500).send('Internal server error.');
-        });
-});
-
-// เพิ่ม endpoint ใหม่สำหรับตรวจสอบสถานะบอร์ด
-app.get('/boardStatus/:token', (req, res) => {
-    const { token } = req.params;
-    const lastSeen = boardLastSeen.get(token);
-    const now = Date.now();
-    const isOnline = lastSeen && (now - lastSeen) < OFFLINE_THRESHOLD;
-
-    res.json({ isOnline, lastSeen: lastSeen || null });
-});
-
-app.get('/api/boards', (req, res) => {
-    dbConnection.query('SELECT token FROM boardcontroller')
-        .then(result => {
-            res.json(result.rows);
-        })
-        .catch(error => {
-            console.error('Error querying database:', error);
-            res.status(500).json({ error: 'Internal server error' });
-        });
-});
-
-app.post('/swcontrol1', (req, res, next) => {
-    const { token, pin1, pin2, pin3 } = req.body;
-    const pins = [1, 2, 3];
-    const statuses = [pin1, pin2, pin3];
-    console.log(req.body)
-    dbConnection.query("SELECT * FROM boardcontroller WHERE token = $1", [token], (err, result) => {
-        if (err) {
-            return next(err);
-        }
-
-        if (result.rows.length > 0) {
-            // วนลูปเพื่ออัพเดตสถานะของแต่ละพิน
-            const updatePromises = pins.map((pin, index) => {
-                return dbConnection.query("UPDATE boardcontroller SET status = $1 WHERE token = $2 AND pin = $3",
-                    [statuses[index], token, pin]);
-            });
-
-            // รอให้ทุกคำสั่งอัพเดตเสร็จสิ้น
-            Promise.all(updatePromises)
-                .then(() => {
-                    res.status(200).json({ message: 'Status updated successfully' });
-                })
-                .catch(err => {
-                    next(err);
-                });
-        } else {
-            return res.status(403).send('Incorrect token....');
-        }
-    });
-});
-
-app.post('/addTimeONled', (req, res, next) => {
-    const { token, pin1, pin2, pin3 } = req.body;
-    const pins = [1, 2, 3];
-    const usage = [pin1, pin2, pin3];
-    const currentTime = moment().tz('Asia/Bangkok').format('DD-MM-YYYY HH:mm');  // Set to Thailand time
-    console.log(usage)
-
-    console.log(req.body)
-    // วนลูปเพื่ออัพเดตสถานะของแต่ละพิน
-    const updatePromises = pins.map((pin, index) => {
-        return dbConnection.query("INSERT INTO electricity_usage (token, pin, timestamp, usage_minutes )VALUES($1, $2, $3,$4)",
-            [token, pin, currentTime, usage[index]]);
-    });
-
-    dbConnection.query("UPDATE boardcontroller SET upgdatetime = 0  WHERE token = $1", [token], (updateErr) => {
-        if (updateErr) {
-            console.error('Error updating status:', updateErr);
-        } else {
-
-        }
-    });
-    Promise.all(updatePromises)
-        .then(() => {
-            res.status(200).json({ message: 'Status updated successfully' });
-        })
-        .catch(err => {
-            next(err);
-        });
-
-});
-
-function updated_TimeoN() {
-    const now = new Date(); // ดึงเวลาปัจจุบัน
-    const options = { timeZone: 'Asia/Bangkok' };
-    const bangkokTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Bangkok' })); // แปลงเวลาตาม timezone Bangkok
-    const minutes = bangkokTime.getMinutes(); // ดึงเลขนาที
-    console.log(minutes); // จะแสดงเฉพาะเลขนาที
-    // เช็คว่าเวลาตรงกับชั่วโมงเต็มหรือไม่
-    if (minutes === 0) {
-        dbConnection.query("UPDATE boardcontroller SET upgdatetime = 1", (updateErr) => {
-            if (updateErr) {
-                console.error('Error updating status:', updateErr);
-            } else {
-
-            }
-        });
-    }
-}
-
-function updated_oNTime() {
-
-    const currentTime = moment().tz('Asia/Bangkok').format('HH:mm'); // Set to Thailand time
-    const currentDay = moment().tz('Asia/Bangkok').format('dddd').toLowerCase(); // Set to Thailand time
-
-
-    // Remove double quotes from around the query string
-    dbConnection.query(`SELECT id, token, pin, ${currentDay} FROM boardcontroller`, (err, result) => {
-        if (err) {
-            console.error('Error querying the database:', err);
-            return;
-        }
-
-        result.rows.forEach(row => {
-
-            const dayTime = row[currentDay];
-            const isDaySelected = dayTime !== null && dayTime !== undefined; // Check if there is a time set for the current day
-            const isTimeMatch = dayTime === currentTime;
-
-            /* console.log(`Checking row ${row.id}:`);
-            console.log(`Current Time: ${currentTime}`);
-            console.log(`Day Time (${currentDay}): ${dayTime}`);
-            console.log(`Day Selected: ${isDaySelected}`);
-            console.log(`Time Match: ${isTimeMatch}`); */
-
-            // Update status only if the time matches and status is not already 1
-            if (isDaySelected && isTimeMatch && row.status !== 1) {
-                dbConnection.query("UPDATE boardcontroller SET status = 1 WHERE id = $1", [row.id], (updateErr) => {
-                    if (updateErr) {
-                        console.error('Error updating status:', updateErr);
-                    } else {
-                        console.log(`Status updated to 1 for token: ${row.token} and pin: ${row.pin}`);
-                    }
-                });
-            }
-        });
-    });
-}
-
-
-function updated_oFFTime() {
-
-    const currentTime = moment().tz('Asia/Bangkok').format('HH:mm'); // Set to Thailand time
-    const currentDay = moment().tz('Asia/Bangkok').format('dddd').toLowerCase() + "off"; // Set to Thailand time
-
-    //console.log(currentDay)
-    // Remove double quotes from around the query string
-    dbConnection.query(`SELECT id, token, pin, ${currentDay} FROM boardcontroller`, (err, result) => {
-        if (err) {
-            console.error('Error querying the database:', err);
-            return;
-        }
-
-        result.rows.forEach(row => {
-
-            const dayTime = row[currentDay];
-            const isDaySelected = dayTime !== null && dayTime !== undefined; // Check if there is a time set for the current day
-            const isTimeMatch = dayTime === currentTime;
-
-            /* console.log(`Checking row ${row.id}:`);
-            console.log(`Current Time: ${currentTime}`);
-            console.log(`Day Time (${currentDay}): ${dayTime}`);
-            console.log(`Day Selected: ${isDaySelected}`);
-            console.log(`Time Match: ${isTimeMatch}`); */
-
-            // Update status only if the time matches and status is not already 1
-            if (isDaySelected && isTimeMatch && row.status !== 0) {
-                dbConnection.query("UPDATE boardcontroller SET status = 0 WHERE id = $1", [row.id], (updateErr) => {
-                    if (updateErr) {
-                        console.error('Error updating status:', updateErr);
-                    } else {
-                        console.log(`Status updated to 1 for token: ${row.token} and pin: ${row.pin}`);
-                    }
-                });
-            }
-        });
-    });
-}
 app.get('/logout', (req, res) => {
     req.session = null;
     res.redirect('/login');
