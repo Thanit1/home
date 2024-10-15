@@ -11,7 +11,7 @@ const ExcelJS = require('exceljs'); // เพิ่มบรรทัดนี�
 const PDFDocument = require('pdfkit-table');
 const fs = require('fs');
 const { write } = require('pdfkit');
-
+const os = require('os');
 setInterval(updated_oNTime, 6000);
 setInterval(updated_oFFTime, 6000);
 setInterval(updated_TimeoN, 60000); // เรียกใช้ทุกนาที
@@ -1316,7 +1316,36 @@ async function createPDFFile(data) {
 const boardLastSeen = new Map();
 const OFFLINE_THRESHOLD = 60 * 1000; // 1 นาทีในหน่วยมิลลิวินาที
 
+// เพิ่มโค้ดนี้ใน app.js
+app.get('/api-test', (req, res) => {
+    res.render('api_test');
+});
 
+app.get('/system-info', (req, res) => {
+    const cpus = os.cpus();
+    const totalCPU = cpus.length;
+    let totalIdle = 0;
+    let totalTick = 0;
+  
+    cpus.forEach((cpu) => {
+      for (const type in cpu.times) {
+        totalTick += cpu.times[type];
+      }
+      totalIdle += cpu.times.idle;
+    });
+  
+    const idlePercentage = totalIdle / totalTick * 100;
+    const usagePercentage = 100 - idlePercentage;
+  
+    res.json({
+      cpuCount: totalCPU,
+      cpuModel: cpus[0].model,
+      cpuSpeed: cpus[0].speed,
+      cpuUsage: usagePercentage.toFixed(2),
+      totalMemory: os.totalmem(),
+      freeMemory: os.freemem()
+    });
+  });
 
 app.get('/logout', (req, res) => {
     req.session = null;
@@ -1326,3 +1355,26 @@ app.get('/logout', (req, res) => {
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
 });
+
+
+// เพิ่มโค้ดนี้ใน app.js
+const apiPerformanceMiddleware = (req, res, next) => {
+    const start = process.hrtime();
+
+    res.on('finish', () => {
+        const end = process.hrtime(start);
+        const duration = (end[0] * 1e9 + end[1]) / 1e6; // แปลงเป็นมิลลิวินาที
+        console.log(`API Request: ${req.method} ${req.originalUrl} - ${duration.toFixed(2)}ms`);
+        
+        // บันทึกการใช้ CPU และ Memory
+        const cpuUsage = process.cpuUsage();
+        const memUsage = process.memoryUsage();
+        console.log(`CPU Usage: ${JSON.stringify(cpuUsage)}`);
+        console.log(`Memory Usage: ${JSON.stringify(memUsage)}`);
+    });
+
+    next();
+};
+
+app.use('/lambController', apiPerformanceMiddleware);
+app.use('/swcontrol', apiPerformanceMiddleware);

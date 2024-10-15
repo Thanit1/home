@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ทดสอบ API</title>
+    <style>
+        body {
+            font-family: 'Anuphan', sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f5f9;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #1e3a8a;
+            text-align: center;
+        }
+        .test-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #e6f0ff;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #1e40af;
+        }
+        #results {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f3f4f6;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>ทดสอบ API</h1>
+        
+        <div class="test-section">
+            <h2>ทดสอบ API: /lambController</h2>
+            <button onclick="testAPI('/lambController', 'POST', {token: 'QLPdn8GCQ3lWTadSXgxIkI857'})">ทดสอบ lambController</button>
+        </div>
+        
+        <div class="test-section">
+            <h2>ทดสอบ API: /swcontrol</h2>
+            <button onclick="testAPI('/swcontrol', 'POST', {token: 'QLPdn8GCQ3lWTadSXgxIkI857', pin: '1', status: '1'})">ทดสอบ swcontrol</button>
+        </div>
+        
+        <div class="test-section">
+            <h2>ทดสอบ Load</h2>
+            <input type="number" id="iterations" value="100" min="1" max="1000">
+            <button onclick="testLoad()">ทดสอบ Load</button>
+        </div>
+        <div class="test-section">
+            <button onclick="clearResults()">ล้างผลลัพธ์</button>
+        </div>
+        <div id="system-info"></div>
+        <div id="results"></div>
+    </div>
+
+    <script>
+       async function testAPI(endpoint, method, data) {
+    const startTime = performance.now();
+    try {
+        const response = await fetch(endpoint, {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        });
+        const result = await response.json();
+        const endTime = performance.now();
+        const duration = endTime - startTime;
+        
+        // แสดงผลลัพธ์บนหน้าเว็บ (ยกเว้นเมื่อเรียกจาก testLoad)
+        if (!document.getElementById('results').innerHTML.includes('ทดสอบ Load เสร็จสิ้น')) {
+            document.getElementById('results').innerHTML += `
+                <h3>ผลการทดสอบ API: ${endpoint}</h3>
+                <p>เวลาที่ใช้: ${duration.toFixed(2)} มิลลิวินาที</p>
+                <pre>${JSON.stringify(result, null, 2)}</pre>
+            `;
+        }
+        
+        // ส่งคืนผลลัพธ์
+        return result;
+    } catch (error) {
+        console.error(`เกิดข้อผิดพลาดในการทดสอบ API ${endpoint}:`, error);
+        return { error: error.message };
+    }
+}
+function clearResults() {
+    document.getElementById('results').innerHTML = '';
+}
+        async function getSystemInfo() {
+            const response = await fetch('/system-info');
+            return await response.json();
+        }
+
+        async function testLoad() {
+    const iterations = parseInt(document.getElementById('iterations').value, 10);
+    const startTime = performance.now();
+    
+    const startSystemInfo = await getSystemInfo();
+    
+    let firstResult;
+    for (let i = 0; i < iterations; i++) {
+        const result = await testAPI('/lambController', 'POST', {token: 'QLPdn8GCQ3lWTadSXgxIkI857'});
+        if (i === 0) {
+            firstResult = result;
+        }
+    }
+    
+    const endSystemInfo = await getSystemInfo();
+    
+    const endTime = performance.now();
+    const totalDuration = endTime - startTime;
+    const averageDuration = totalDuration / iterations;
+    
+    const cpuUsageDiff = endSystemInfo.cpuUsage - startSystemInfo.cpuUsage;
+    const memoryUsageDiff = (startSystemInfo.freeMemory - endSystemInfo.freeMemory) / (1024 * 1024);
+    
+    const startCPUUsage = (100 - startSystemInfo.cpuUsage).toFixed(2);
+    const endCPUUsage = (100 - endSystemInfo.cpuUsage).toFixed(2);
+    const startMemoryUsage = ((startSystemInfo.totalMemory - startSystemInfo.freeMemory) / (1024 * 1024)).toFixed(2);
+    const endMemoryUsage = ((endSystemInfo.totalMemory - endSystemInfo.freeMemory) / (1024 * 1024)).toFixed(2);
+    
+    document.getElementById('results').innerHTML = `
+        <h3>ทดสอบ Load เสร็จสิ้น:</h3>
+        <p>จำนวนการเรียก API: ${iterations}</p>
+        <p>เวลาทั้งหมด: ${totalDuration.toFixed(2)} มิลลิวินาที</p>
+        <p>เวลาเฉลี่ยต่อการเรียก: ${averageDuration.toFixed(2)} มิลลิวินาที</p>
+        <h4>การใช้งาน CPU:</h4>
+        <p>เริ่มต้น: ${startCPUUsage}%</p>
+        <p>สิ้นสุด: ${endCPUUsage}%</p>
+        <p>เพิ่มขึ้น: ${cpuUsageDiff.toFixed(2)}%</p>
+        <h4>การใช้งานหน่วยความจำ:</h4>
+        <p>เริ่มต้น: ${startMemoryUsage} MB</p>
+        <p>สิ้นสุด: ${endMemoryUsage} MB</p>
+        <p>เปลี่ยนแปลง: ${memoryUsageDiff.toFixed(2)} MB</p>
+        <h4>ผลลัพธ์ของการเรียก API ครั้งแรก:</h4>
+        <pre>${JSON.stringify(firstResult, null, 2)}</pre>
+    `;
+}
+        async function updateSystemInfo() {
+            const info = await getSystemInfo();
+            document.getElementById('system-info').innerHTML = `
+                <h3>ข้อมูลระบบ:</h3>
+                <p>จำนวน CPU: ${info.cpuCount}</p>
+                <p>รุ่น CPU: ${info.cpuModel}</p>
+                <p>ความเร็ว CPU: ${info.cpuSpeed} MHz</p>
+                <p>การใช้งาน CPU: ${info.cpuUsage}%</p>
+                <p>หน่วยความจำทั้งหมด: ${(info.totalMemory / (1024 * 1024 * 1024)).toFixed(2)} GB</p>
+                <p>หน่วยความจำที่ใช้: ${((info.totalMemory - info.freeMemory) / (1024 * 1024 * 1024)).toFixed(2)} GB</p>
+            `;
+        }
+
+        // อัพเดตข้อมูลระบบทุก 5 วินาที
+        setInterval(updateSystemInfo, 5000);
+
+        // เรียกฟังก์ชันครั้งแรกเพื่อแสดงข้อมูลทันที
+        updateSystemInfo();
+    </script>
+</body>
+</html>
